@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface ScannerData {
+  id: number, // 9 digit student id
+  time: number, // milliseconds since epoch
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.json();
+    const data: ScannerData = await req.json();
     console.log('Received data:', data);
+
+    console.log("id: %d", data.id);
+    const date = new Date(data.time);
+    console.log("date: ", date.toString());
 
     // Do something with the data (e.g., store in DB, send a notification, etc.)
 

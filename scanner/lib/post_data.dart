@@ -6,8 +6,18 @@ Future<void> postData(String data) async {
   const url = "http://10.0.0.153:3000/api/data";
   print(data);
 
+  if (data.length != 9) {
+    return;
+  }
+
+  int? id = int.tryParse(data);
+  if (id == null) {
+    return;
+  }
+
   final body = jsonEncode({
-    'id': data
+    'id': id,
+    'time': DateTime.now().millisecondsSinceEpoch
   });
 
   final response = await http.post(
