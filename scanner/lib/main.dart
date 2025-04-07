@@ -11,8 +11,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: NFCScanner()
+    return MaterialApp(
+      title: 'NFC Scanner',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey, brightness: Brightness.dark),
+      ),
+      home: const NFCScanner(),
     );
   }
 }
@@ -25,7 +29,6 @@ class NFCScanner extends StatefulWidget {
 }
 
 class NFCScannerState extends State<NFCScanner> {
-
   String data = "Press button then scan tag";
 
   Future<void> startNFC() async {
@@ -65,7 +68,7 @@ class NFCScannerState extends State<NFCScanner> {
       },
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,12 +81,11 @@ class NFCScannerState extends State<NFCScanner> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: startNFC,
-              child: Text("Scan", style: TextStyle(fontSize: 24)),
+              child: Text("Scan", style: TextStyle(fontSize: 28)),
             ),
           ],
         ),
       ),
     );
   }
-
 }
