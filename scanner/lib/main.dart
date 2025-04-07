@@ -72,7 +72,7 @@ class NFCScannerState extends State<NFCScanner> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("NFC Reader")),
+      appBar: AppBar(title: Text("NFC Scanner")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
