@@ -10,13 +10,12 @@ Future<void> postData(String data) async {
     return;
   }
 
-  int? id = int.tryParse(data);
-  if (id == null) {
+  if (int.tryParse(data) == null) {
     return;
   }
 
   final body = jsonEncode({
-    'id': id,
+    'id': data,
     'time': DateTime.now().millisecondsSinceEpoch
   });
 

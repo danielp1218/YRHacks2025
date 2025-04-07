@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 interface ScannerData {
-  id: number, // 9 digit student id
+  id: string, // 9 digit student id string
   time: number, // milliseconds since epoch
 }
 
@@ -9,7 +9,14 @@ export async function POST(req: NextRequest) {
   try {
     const data: ScannerData = await req.json();
     console.log('Received data:', data);
-
+    
+    if (data.id.length != 9) {
+      throw TypeError("Received id is not 9 digits.");
+    }
+    if (Number.isNaN(Number(data.id))) {
+      throw TypeError("Received id is not numeric.");
+    }
+    
     console.log("id: %d", data.id);
     const date = new Date(data.time);
     console.log("date: ", date.toString());
