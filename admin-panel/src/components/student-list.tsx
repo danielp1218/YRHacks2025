@@ -24,6 +24,7 @@ export function StudentList({ filter }: StudentListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentClassIndex, setCurrentClassIndex] = useState(0)
   const [statuses, setStatuses] = useState<Record<number, string>>({}) // Store statuses by student ID
+  const [attendanceRates, setAttendanceRates] = useState<Record<number, string>>({}) // Store attendance rates by student ID
   const [classes, setClasses] = useState<string[]>([]);
   const [authData, setAuthData] = useState<Session | null>(null);
 
@@ -125,16 +126,21 @@ export function StudentList({ filter }: StudentListProps) {
   }, [currentClassIndex, classes]);
 
   useEffect(() => {
-    const fetchStatuses = async () => {
+    const fetchStatusesAndRates = async () => {
       const newStatuses: Record<number, string> = {}
+      const newRates: Record<number, string> = {}
+      
       for (const student of students) {
         newStatuses[student.id] = await currentStatus(student)
+        newRates[student.id] = await calculateTotalAttendanceRate(student, classes[currentClassIndex])
       }
+      
       setStatuses(newStatuses)
+      setAttendanceRates(newRates)
     }
 
-    fetchStatuses()
-  }, [students]) // Re-fetch statuses when students change
+    fetchStatusesAndRates()
+  }, [students]) // Re-fetch when students change
 
   const handleClassSelect = (index: number) => {
     setCurrentClassIndex(index);
@@ -202,7 +208,7 @@ export function StudentList({ filter }: StudentListProps) {
           <TableBody>
             {filteredStudents.map((student) => {
               const fullName = `${student.first_name ?? ""} ${student.last_name ?? ""}`
-              const rate = calculateTotalAttendanceRate(student)
+              const rate = attendanceRates[student.id] || "—" // Use rate from state instead of calling the function
               const status = statuses[student.id] || "Loading..." // Use status from state
               return (
                 <TableRow key={student.id}>
