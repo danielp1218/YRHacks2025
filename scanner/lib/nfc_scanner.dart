@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:scanner/fetch_data.dart';
 import 'package:scanner/post_data.dart';
+import 'package:scanner/student.dart';
+import 'package:scanner/student_data.dart';
 
 class NFCScanner extends StatefulWidget {
   const NFCScanner({super.key});
@@ -10,7 +15,9 @@ class NFCScanner extends StatefulWidget {
 }
 
 class NFCScannerState extends State<NFCScanner> {
+
   String data = "Press button then scan tag";
+  StudentData? studentData;
 
   Future<void> startNFC() async {
 
@@ -36,19 +43,25 @@ class NFCScannerState extends State<NFCScanner> {
           });
         } else {
           final NdefMessage message = await ndef.read();
-
-          setState(() {
-            if (message.records.length != 1) {
+          if (message.records.length != 1) {
+            setState(() {
               data = "Tag does not have exactly 1 record!";
-            } else {
+            });
+          } else {
+            
+            setState(() {
               data = String.fromCharCodes(
                 message.records.first.payload.skip(
                   message.records.first.payload.first + 1,
                 ),
               ); // skip first n bytes (where n is defined by the first byte in the message) which defines the language such as "en"
               postData(data);
-            }
-          });
+            });
+
+            final fetchedData = await fetchData();
+            setState(() => studentData = fetchedData);
+
+          }
         }
         NfcManager.instance.stopSession();
       },
@@ -63,6 +76,7 @@ class NFCScannerState extends State<NFCScanner> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            studentData != null ? StudentInfo(studentData: studentData!,) : Placeholder(),
             Text(data, style: TextStyle(fontSize: 26)),
             SizedBox(height: 24),
             ElevatedButton(

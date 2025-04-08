@@ -5,8 +5,6 @@ import 'package:scanner/util.dart';
 
 Future<void> postData(String data) async {
   debugPrint(data);
-
-  const url = "http://10.0.0.153:3000/api/data";
   
   if (data.length != 9) {
     return;
@@ -22,7 +20,7 @@ Future<void> postData(String data) async {
   });
 
   final response = await http.post(
-    Uri.parse(url),
+    Uri.parse(serverUrl),
     headers: {
       'Content-Type': 'application/json',
     },
