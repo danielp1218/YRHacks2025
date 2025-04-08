@@ -1,3 +1,5 @@
+'use client'
+
 import Link from "next/link"
 import { Bell, Calendar, LogOut, Settings, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -11,8 +13,20 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {auth} from '@/util/auth'
+import {type AuthResponse} from '@supabase/supabase-js'
+import {useEffect, useState} from 'react'
 
 export function DashboardHeader() {
+    const [authData, setAuthData] = useState<AuthResponse | null>(null);
+    
+    useEffect(() => {
+        auth().then((result) => {
+            setAuthData(result);
+            console.log(result);
+        });
+    }, []);
+
     return (
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -28,16 +42,23 @@ export function DashboardHeader() {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                             <Avatar className="h-8 w-8">
+                                {
+                                    // TODO: get actual picture
+                                }
                                 <AvatarImage src="/placeholder.svg" alt="Teacher" />
-                                <AvatarFallback>TC</AvatarFallback>
+                                <AvatarFallback>
+                                    {`${authData?.data.user?.user_metadata?.first_name?.[0] || ""}${authData?.data.user?.user_metadata?.last_name?.[0] || ""}`}
+                                </AvatarFallback>
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">Ms. Johnson</p>
-                                <p className="text-xs leading-none text-muted-foreground">johnson@school.edu</p>
+                                <p className="text-sm font-medium leading-none">
+                                    {`${authData?.data.user?.user_metadata?.first_name || ""} ${authData?.data.user?.user_metadata?.last_name || ""}`.trim()}
+                                </p>
+                                <p className="text-xs leading-none text-muted-foreground">{authData?.data.user?.email || "Guest"}</p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />

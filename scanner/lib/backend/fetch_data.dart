@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:scanner/student_data.dart';
+import 'package:scanner/backend/student_data.dart';
 import 'package:scanner/util.dart';
 
 Uint8List base64ToImage(String dataUrl) {
