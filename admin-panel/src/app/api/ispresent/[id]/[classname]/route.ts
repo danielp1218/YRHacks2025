@@ -1,7 +1,7 @@
 import {NextResponse, NextRequest} from 'next/server'
 import {supabase} from '@/util/supabase'
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id:string, classname: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id:string[], classname: string[] }> }) {
 
     const { id, classname } = await params;
 

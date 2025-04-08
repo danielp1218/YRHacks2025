@@ -9,7 +9,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Mail } from "lucide-react"
 import { type Student } from "@/util/database.types"
 
-export default function StudentDetailPage({ params }: { params: { id: string } }) {
+export default function StudentDetailPage({ params }: { params: { id: string[] } }) {
     const [student, setStudent] = useState<Student | null>(null)
     const [history, setHistory] = useState<any[]>([])
   
@@ -64,7 +64,11 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
               <CardHeader>
                 <div className="flex flex-col items-center space-y-2">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={student.profile_photo ?? '/placeholder.svg'} alt={fullName} />
+                    <AvatarImage 
+                      src={student.profile_photo ?? '/placeholder.svg'} 
+                      alt={fullName} 
+                      className="object-cover"
+                    />
                     <AvatarFallback>
                       {fullName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
