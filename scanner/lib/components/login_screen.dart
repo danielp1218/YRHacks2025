@@ -12,14 +12,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: AuthWidget(),
+        child: Column(
+          children: [
+            SizedBox(height: 180),
+            Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: AuthWidget(),
+            ),
+          ],
         )
       ),
     );

@@ -3,6 +3,8 @@ import {supabase} from '@/util/supabase';
 
 interface ScannerData {
   id: string, // 9 digit student id string
+  classStr: string,
+  teacherid: string,
 }
 
 export async function POST(req: NextRequest) {
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
     const {data, error} = await supabase.from('History')
         .insert({
         "id": scanData.id,
-        "class": "test",
+        "class": scanData.classStr,
         "status": "On Time"
     })
 
