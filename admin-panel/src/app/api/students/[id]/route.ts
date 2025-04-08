@@ -2,7 +2,8 @@ import {NextResponse} from 'next/server'
 import {supabase} from '@/util/supabase' // use supabaseClient if staying public
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-    const {id} = await params
+    const { id } = await params;
+
     const { data: student, error } = await supabase
         .from('Students')
         .select('*')

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scanner/nfc_scanner.dart';
+import 'package:scanner/components/nfc_scanner.dart';
 
 void main() {
   runApp(const App());
