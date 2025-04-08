@@ -12,6 +12,10 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Calendar, Mail, Phone } from "lucide-react"
 
+/*
+TODO: PROOF OF CONCEPT, NOT DONE YET
+*/
+
 // Mock student data
 const studentData = {
     id: "1",

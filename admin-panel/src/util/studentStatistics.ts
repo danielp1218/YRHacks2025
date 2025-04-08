@@ -2,20 +2,21 @@ import {type Student} from "./database.types"
 import {supabase} from '@/util/supabase'
 
 export const calculateTotalAttendanceRate = async (student: Student, classname: string) => {
+    console.log("Calculating attendance rate for student:", student.id, "in class:", classname);
     let total = 0;
     let present = 0;
     const { data, error } = await supabase
             .from('History')
             .select('*')
+            .eq('class', classname)
             .eq('id', student.id)
-            .eq('classname', classname)
-            .order('created_at', {ascending: false})
-
-    if (!data) {
+    if (data == null) {
+        
         return '—';
     }
     for (const record of data) {
-        if (record.status === 'Present') {
+        console.log(record);
+        if (record.status === 'On Time') {
             present++;
         }
         total++;
