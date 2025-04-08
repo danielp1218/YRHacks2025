@@ -131,7 +131,7 @@ export function StudentList({ filter }: StudentListProps) {
       const newRates: Record<number, string> = {}
       
       for (const student of students) {
-        newStatuses[student.id] = await currentStatus(student)
+        newStatuses[student.id] = await currentStatus(student, classes[currentClassIndex])
         newRates[student.id] = await calculateTotalAttendanceRate(student, classes[currentClassIndex])
       }
       
@@ -215,7 +215,17 @@ export function StudentList({ filter }: StudentListProps) {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={student.profile_photo ?? undefined} alt={fullName} />
+                        <AvatarImage 
+                          src={
+                            student.profile_photo 
+                              ? (student.profile_photo.startsWith('data:') 
+                                ? student.profile_photo 
+                                : `data:image/jpeg;base64,${student.profile_photo}`)
+                              : undefined
+                          } 
+                          alt={fullName} 
+                          style={{ objectFit: "cover", objectPosition: "center" }}
+                        />
                         <AvatarFallback>{fullName.charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="font-medium">{fullName}</div>

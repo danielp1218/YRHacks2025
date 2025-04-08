@@ -23,9 +23,9 @@ export const calculateTotalAttendanceRate = async (student: Student, classname: 
     return total === 0 ? '—' : `${Math.round((present / total) * 100)}%`
 }
 
-export const currentStatus = async (student: Student) => {
+export const currentStatus = async (student: Student, classname: string) => {
     try {
-        const response = await fetch(`api/ispresent/${student.id}/`);
+        const response = await fetch(`api/ispresent/${student.id}/${classname}`);
         if (!response.ok) {
             return "Absent";
         }
