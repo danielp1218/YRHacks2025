@@ -14,11 +14,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {auth} from '@/util/auth'
-import {type AuthResponse} from '@supabase/supabase-js'
+import {type Session} from '@supabase/supabase-js'
 import {useEffect, useState} from 'react'
 
 export function DashboardHeader() {
-    const [authData, setAuthData] = useState<AuthResponse | null>(null);
+    const [authData, setAuthData] = useState<Session | null>(null);
     
     useEffect(() => {
         auth().then((result) => {
@@ -47,7 +47,7 @@ export function DashboardHeader() {
                                 }
                                 <AvatarImage src="/placeholder.svg" alt="Teacher" />
                                 <AvatarFallback>
-                                    {`${authData?.data.user?.user_metadata?.first_name?.[0] || ""}${authData?.data.user?.user_metadata?.last_name?.[0] || ""}`}
+                                    {`${authData?.user?.user_metadata?.first_name?.[0] || ""}${authData?.user?.user_metadata?.last_name?.[0] || ""}`}
                                 </AvatarFallback>
                             </Avatar>
                         </Button>
@@ -56,9 +56,9 @@ export function DashboardHeader() {
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
                                 <p className="text-sm font-medium leading-none">
-                                    {`${authData?.data.user?.user_metadata?.first_name || ""} ${authData?.data.user?.user_metadata?.last_name || ""}`.trim()}
+                                    {`${authData?.user?.user_metadata?.first_name || ""} ${authData?.user?.user_metadata?.last_name || ""}`.trim()}
                                 </p>
-                                <p className="text-xs leading-none text-muted-foreground">{authData?.data.user?.email || "Guest"}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{authData?.user?.email || "Guest"}</p>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
