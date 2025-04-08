@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -9,25 +9,80 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search } from "lucide-react"
 import { allStudents} from "@/util/fakeStudents"
+import { supabase } from '@/util/supabase'
+import { type Student } from '@/util/database.types'
+import {calculateTotalAttendanceRate} from "@/util/studentStatistics";
 
-// Mock data for students
 
 
 // Filter for "my students" - in a real app this would be based on teacher's class
 const myStudents = allStudents.filter((_, index) => index < 5)
-
 type StudentListProps = {
-    filter: "my-students" | "all-students"
+    filter: 'my-students' | 'all-students'
 }
 
 export function StudentList({ filter }: StudentListProps) {
-    const [searchQuery, setSearchQuery] = useState("")
+    const [students, setStudents] = useState<Student[]>([])
+    const [searchQuery, setSearchQuery] = useState('')
 
-    // Determine which student list to show based on filter
-    const students = filter === "my-students" ? myStudents : allStudents
+    useEffect(() => {
+        const fetchStudents = async () => {
+            const { data, error } = await supabase
+                .from('Students')
+                .select('*')
+                .order('id');
 
-    // Filter students based on search query
-    const filteredStudents = students.filter((student) => student.name.toLowerCase().includes(searchQuery.toLowerCase()))
+            if (error) console.error(error);
+            else setStudents(data);
+        }
+
+        fetchStudents();
+
+        const channel = supabase
+            .channel('realtime-students')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'Students',
+                },
+                (payload) => {
+                    setStudents((prev) => {
+                        const updated = payload.new as Student;
+                        const idx = prev.findIndex((s) => s.id === updated.id);
+
+                        if (payload.eventType === 'DELETE') {
+                            return prev.filter((s) => s.id !== payload.old.id);
+                        }
+
+                        if (idx > -1) {
+                            const copy = [...prev];
+                            copy[idx] = updated;
+                            return copy;
+                        }
+
+                        return [...prev, updated];
+                    })
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        }
+    }, []);
+
+    // Mock filter: take first 5 as "my students"
+    const filteredByGroup =
+        filter === 'my-students' ? students.slice(0, 5) : students;
+
+    const filteredStudents = filteredByGroup.filter((student) => {
+        const name = `${student.first_name ?? ''} ${student.last_name ?? ''}`
+        return name.toLowerCase().includes(searchQuery.toLowerCase())
+    });
+
+
 
     return (
         <div className="space-y-4">
@@ -55,33 +110,44 @@ export function StudentList({ filter }: StudentListProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredStudents.map((student) => (
-                            <TableRow key={student.id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9">
-                                            <AvatarImage src={student.image} alt={student.name} />
-                                            <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="font-medium">{student.name}</div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{student.grade}</TableCell>
-                                <TableCell>
-                                    <Badge variant={student.attendanceToday ? "default" : "destructive"}>
-                                        {student.attendanceToday ? "Present" : "Absent"}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{student.attendanceRate}</TableCell>
-                                <TableCell className="text-right">
-                                    <Link href={`/students/${student.id}`}>
-                                        <Button variant="ghost" size="sm">
-                                            View
-                                        </Button>
-                                    </Link>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {filteredStudents.map((student) => {
+                            const fullName = `${student.first_name ?? ''} ${
+                                student.last_name ?? ''
+                            }`
+                            const rate = calculateTotalAttendanceRate(student);
+
+                            return (
+                                <TableRow key={student.id}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage
+                                                    src={student.profile_photo ?? undefined}
+                                                    alt={fullName}
+                                                />
+                                                <AvatarFallback>
+                                                    {fullName.charAt(0).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="font-medium">{fullName}</div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>{student.grade ?? '—'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="secondary">N/A</Badge>
+                                        {/* Replace with actual logic for "today" status if needed */}
+                                    </TableCell>
+                                    <TableCell>{rate}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Link href={`/students/${student.id}`}>
+                                            <Button variant="ghost" size="sm">
+                                                View
+                                            </Button>
+                                        </Link>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
                     </TableBody>
                 </Table>
             </div>

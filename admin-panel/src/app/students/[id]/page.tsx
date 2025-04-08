@@ -11,6 +11,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Calendar, Mail, Phone } from "lucide-react"
+import { type Student } from "@/util/database.types"
 
 // Mock student data
 const studentData = {
