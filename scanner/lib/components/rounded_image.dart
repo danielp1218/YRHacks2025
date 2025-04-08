@@ -10,12 +10,16 @@ class RoundedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: Image.memory(
-        imageBytes,
-        fit: BoxFit.cover,
-      )
+    return SizedBox(
+      width: 300,
+      height: 300,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Image.memory(
+          imageBytes,
+          fit: BoxFit.cover,
+        )
+      ),
     );
   }
 
