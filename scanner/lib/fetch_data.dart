@@ -13,12 +13,15 @@ Uint8List base64ToImage(String dataUrl) {
 Future<StudentData?> fetchData(String id) async {
   final response = await http.get(Uri.parse(studentDataUrl + id));
   if (response.statusCode == 200) {
+    debugPrint(response.body);
     final json = jsonDecode(response.body);
     return StudentData(
-      json['name'],
       json['grade'],
-      base64ToImage(json['image']),
+      base64ToImage(json['profile_photo']),
       json['classes'],
+      json['first_name'],
+      json['last_name'],
+      json['status'],
     );
   } else {
     debugPrint("Error fetching student data ${response.statusCode} - ${response.body}");

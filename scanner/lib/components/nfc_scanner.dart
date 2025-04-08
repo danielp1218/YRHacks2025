@@ -19,6 +19,8 @@ class NFCScannerState extends State<NFCScanner> {
   StudentData? studentData;
 
   Future<void> startNFC() async {
+    setState(() => studentData = null);
+    
     bool isAvailable = await NfcManager.instance.isAvailable();
     if (!isAvailable) {
       setState(() {

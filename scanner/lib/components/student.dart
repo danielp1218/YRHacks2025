@@ -14,7 +14,7 @@ class StudentInfo extends StatelessWidget {
       children: [
         RoundedImage(imageBytes: studentData.imageBytes, radius: 40),
         SizedBox(height: 10),
-        Text(studentData.name, style: TextStyle(fontSize: 24)),
+        Text(studentData.name, style: TextStyle(fontSize: 26)),
         Text("Grade ${studentData.grade.toString()}", style: TextStyle(fontSize: 24)),
       ],
     );
