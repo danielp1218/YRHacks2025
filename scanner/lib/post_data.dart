@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:scanner/util.dart';
 
 Future<void> postData(String data) async {
-  const url = "http://10.0.0.153:3000/api/data";
-  print(data);
+  debugPrint(data);
 
+  const url = "http://10.0.0.153:3000/api/data";
+  
   if (data.length != 9) {
     return;
   }
@@ -28,9 +30,9 @@ Future<void> postData(String data) async {
   );
 
   if (response.statusCode == 200) {
-    print('Success: ${response.body}');
+    debugPrint('Success: ${response.body}');
   } else {
-    print('Failed: ${response.statusCode} - ${response.body}');
+    debugPrint('Failed: ${response.statusCode} - ${response.body}');
   }
 
 }
