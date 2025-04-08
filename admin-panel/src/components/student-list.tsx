@@ -8,15 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search } from "lucide-react"
-import { allStudents } from "@/util/fakeStudents"
 import { supabase } from "@/util/supabase"
 import type { Student } from "@/util/database.types"
 import { calculateTotalAttendanceRate, currentStatus } from "@/util/studentStatistics"
-import {auth} from '@/util/auth'
-import {type Session} from '@supabase/supabase-js'
+import { auth } from '@/util/auth'
+import { type Session } from '@supabase/supabase-js'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-// Filter for "my students" - in a real app this would be based on teacher's class
-const myStudents = allStudents.filter((_, index) => index < 5)
 type StudentListProps = {
   filter: "my-students" | "all-students"
 }
@@ -24,48 +22,32 @@ type StudentListProps = {
 export function StudentList({ filter }: StudentListProps) {
   const [students, setStudents] = useState<Student[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const [period, setPeriod] = useState(1)
+  const [currentClassIndex, setCurrentClassIndex] = useState(0)
   const [statuses, setStatuses] = useState<Record<number, string>>({}) // Store statuses by student ID
-    const [classes, setClasses] = useState([]);
-    const [authData, setAuthData] = useState<Session | null>(null);
-    
+  const [classes, setClasses] = useState<string[]>([]);
+  const [authData, setAuthData] = useState<Session | null>(null);
+
+  const fetchStudentsByClass = async (className: string) => {
+    const { data, error } = await supabase.rpc('get_students_by_class', {
+      p_classname: className,
+    });
+  
+    if (error) {
+      console.error('Error fetching students:', error);
+      return [];
+    }
+  
+    return data;
+  }
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      const { data, error } = await supabase.from("Students").select("*").order("id")
-
-      if (error) console.error(error)
-      else setStudents(data)
-    }
-
-    fetchStudents()
-
-    // do auth
+    // Initial auth setup
     auth().then((result) => {
-        setAuthData(result);
-        console.log(result);
+      setAuthData(result);
+      console.log(result);
     });
 
-    const fetchClasses = async ()=>{
-        if(authData?.user.id === undefined){
-            console.log("not logged in")
-            return;
-        }
-        const {data, error} = await supabase
-            .from("Teachers")
-            .select("*")
-            .eq("teacherid", authData?.user?.id)
-            .single()
-
-        if(error){
-            console.log("error fetching teacher data");
-        }
-        console.log(data);
-        setClasses(data);
-    }
-
-    fetchClasses();
-
+    // Set up realtime updates
     const channel = supabase
       .channel("realtime-students")
       .on(
@@ -101,6 +83,47 @@ export function StudentList({ filter }: StudentListProps) {
     }
   }, [])
 
+  // Fetch classes when auth data is available
+  useEffect(() => {
+    const fetchClasses = async () => {
+      if (authData?.user.id === undefined) {
+        console.log("not logged in");
+        return;
+      }
+      const { data, error } = await supabase
+        .from("Teachers")
+        .select("*")
+        .eq("teacherid", authData?.user?.id)
+        .single();
+
+      if (error) {
+        console.log("error fetching teacher data");
+      }
+      console.log(data);
+      if (data?.classes && data.classes.length > 0) {
+        setClasses(data.classes);
+        // Fetch students for the first class automatically
+        const studentsData = await fetchStudentsByClass(data.classes[0]);
+        setStudents(studentsData || []);
+      }
+    };
+
+    fetchClasses();
+  }, [authData]);
+
+  // Fetch students when current class changes
+  useEffect(() => {
+    const fetchStudentsForClass = async () => {
+      if (classes.length > 0 && currentClassIndex >= 0 && currentClassIndex < classes.length) {
+        const className = classes[currentClassIndex];
+        const studentsData = await fetchStudentsByClass(className);
+        setStudents(studentsData || []);
+      }
+    };
+    
+    fetchStudentsForClass();
+  }, [currentClassIndex, classes]);
+
   useEffect(() => {
     const fetchStatuses = async () => {
       const newStatuses: Record<number, string> = {}
@@ -111,12 +134,14 @@ export function StudentList({ filter }: StudentListProps) {
     }
 
     fetchStatuses()
-  }, [students, period]) // Re-fetch statuses when students or period changes
+  }, [students]) // Re-fetch statuses when students change
 
-  // Mock filter: take first 5 as "my students"
-  const filteredByGroup = filter === "my-students" ? students.slice(0, 5) : students
+  const handleClassSelect = (index: number) => {
+    setCurrentClassIndex(index);
+  };
 
-  const filteredStudents = filteredByGroup.filter((student) => {
+  // Filter students based on search query only (class filtering is now handled by fetchStudentsByClass)
+  const filteredStudents = students.filter((student) => {
     const name = `${student.first_name ?? ""} ${student.last_name ?? ""}`
     return name.toLowerCase().includes(searchQuery.toLowerCase())
   })
@@ -148,15 +173,19 @@ export function StudentList({ filter }: StudentListProps) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Period:</span>
-          <Input
-            type="number"
-            min={1}
-            max={5}
-            value={period}
-            onChange={(e) => setPeriod(Math.min(5, Math.max(1, Number.parseInt(e.target.value) || 1)))}
-            className="w-16"
-          />
+          <span className="text-sm font-medium">Class:</span>
+          <Select onValueChange={(value) => handleClassSelect(Number(value))}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder={classes[currentClassIndex] || "No Classes"} />
+            </SelectTrigger>
+            <SelectContent>
+              {classes.map((className, index) => (
+                <SelectItem key={index} value={index.toString()}>
+                  {className}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <div className="rounded-md border">
@@ -165,7 +194,7 @@ export function StudentList({ filter }: StudentListProps) {
             <TableRow>
               <TableHead>Student</TableHead>
               <TableHead>Grade</TableHead>
-              <TableHead>Status (Period {period})</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Attendance Rate</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
