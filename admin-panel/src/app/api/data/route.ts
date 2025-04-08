@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const {data, error} = await supabase.from('History')
         .insert({
         "id": scanData.id,
-        "class": "test",
+        "class": scanData.classStr,
         "status": "On Time"
     })
 
