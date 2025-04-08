@@ -1,8 +1,7 @@
-import {NextResponse} from 'next/server'
+import {NextResponse, NextRequest} from 'next/server'
 import {supabase} from '@/util/supabase'
 
-export async function GET(request: Request, { params }: { params: { id: string} }) {
-
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     const { id } = await params;
 
     const { data, error } = await supabase
