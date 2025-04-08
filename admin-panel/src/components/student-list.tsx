@@ -12,6 +12,8 @@ import { allStudents } from "@/util/fakeStudents"
 import { supabase } from "@/util/supabase"
 import type { Student } from "@/util/database.types"
 import { calculateTotalAttendanceRate, currentStatus } from "@/util/studentStatistics"
+import {auth} from '@/util/auth'
+import {type Session} from '@supabase/supabase-js'
 
 // Filter for "my students" - in a real app this would be based on teacher's class
 const myStudents = allStudents.filter((_, index) => index < 5)
@@ -24,6 +26,9 @@ export function StudentList({ filter }: StudentListProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [period, setPeriod] = useState(1)
   const [statuses, setStatuses] = useState<Record<number, string>>({}) // Store statuses by student ID
+    const [classes, setClasses] = useState([]);
+    const [authData, setAuthData] = useState<Session | null>(null);
+    
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -34,6 +39,32 @@ export function StudentList({ filter }: StudentListProps) {
     }
 
     fetchStudents()
+
+    // do auth
+    auth().then((result) => {
+        setAuthData(result);
+        console.log(result);
+    });
+
+    const fetchClasses = async ()=>{
+        if(authData?.user.id === undefined){
+            console.log("not logged in")
+            return;
+        }
+        const {data, error} = await supabase
+            .from("Teachers")
+            .select("*")
+            .eq("teacherid", authData?.user?.id)
+            .single()
+
+        if(error){
+            console.log("error fetching teacher data");
+        }
+        console.log(data);
+        setClasses(data);
+    }
+
+    fetchClasses();
 
     const channel = supabase
       .channel("realtime-students")
