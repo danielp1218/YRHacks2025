@@ -21,7 +21,7 @@ Future<StudentData?> fetchData(String id) async {
       json['classes'],
     );
   } else {
-    debugPrint("Error fetching student data");
+    debugPrint("Error fetching student data ${response.statusCode} - ${response.body}");
     return null;
   }
 }

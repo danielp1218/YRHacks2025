@@ -12,7 +12,7 @@ Future<void> postData(String data) async {
   });
 
   final response = await http.post(
-    Uri.parse(serverUrl),
+    Uri.parse(postUrl),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -20,9 +20,9 @@ Future<void> postData(String data) async {
   );
 
   if (response.statusCode == 200) {
-    debugPrint('Success: ${response.body}');
+    debugPrint('Post Success: ${response.body}');
   } else {
-    debugPrint('Failed: ${response.statusCode} - ${response.body}');
+    debugPrint('Post Failed: ${response.statusCode} - ${response.body}');
   }
 
 }

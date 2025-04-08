@@ -59,12 +59,15 @@ class NFCScannerState extends State<NFCScanner> {
               postData(data);
               final fetchedData = await fetchData(data);
               setState(() => studentData = fetchedData);
-            } else {
-              setState(() => studentData = null);
             }
           }
         }
         NfcManager.instance.stopSession();
+      },
+      onError: (error) async {
+        debugPrint("Failed to scan tag $error");
+        setState(() => data = "Failed to scan tag");
+        setState(() => studentData = null);
       },
     );
   }
