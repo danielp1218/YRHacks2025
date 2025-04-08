@@ -11,7 +11,7 @@ class StudentInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        RoundedImage(imageBytes: studentData.imageBytes, radius: 16),
+        RoundedImage(imageBytes: studentData.imageBytes, radius: 40),
         SizedBox(height: 18),
         Text(studentData.name, style: TextStyle(fontSize: 24)),
       ],
