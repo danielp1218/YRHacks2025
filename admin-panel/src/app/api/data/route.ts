@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { promises as fs } from 'fs';
+import {supabase} from '@/util/supabase';
 
 interface ScannerData {
   id: string, // 9 digit student id string
@@ -9,19 +8,31 @@ interface ScannerData {
 
 export async function POST(req: NextRequest) {
   try {
-    const data: ScannerData = await req.json();
-    console.log('Received data:', data);
+    const scanData: ScannerData = await req.json();
+    console.log('Received data:', scanData);
     
-    if (data.id.length != 9) {
+    if (scanData.id.length != 9) {
       throw TypeError("Received id is not 9 digits.");
     }
-    if (Number.isNaN(Number(data.id))) {
+    if (Number.isNaN(Number(scanData.id))) {
       throw TypeError("Received id is not numeric.");
     }
 
-    console.log("id: %d", data.id);
-    const date = new Date(data.time);
+    console.log("id: %d", scanData.id);
+    const date = new Date(scanData.time);
     console.log("date: ", date.toString());
+
+    const {data, error} = await supabase.from('History')
+        .insert({
+        "id": scanData.id,
+        "class": "test",
+        "status": "On Time"
+    })
+
+    if(error){
+      console.log(error);
+      return NextResponse.json({ error: 'Supabase Error' }, { status: 500 });
+    }
 
     // Do something with the data (e.g., store in DB, send a notification, etc.)
 
