@@ -12,3 +12,11 @@ export const calculateTotalAttendanceRate = (student: Student) => {
     }
     return total === 0 ? '—' : `${Math.round((present / total) * 100)}%`
 }
+
+export const currentStatus = (student: Student, period: number) =>{
+    const history = student.classes[period].history;
+    if(history.length == 0){
+return "Absent";
+    }
+    return history[history.length-1].status;
+}

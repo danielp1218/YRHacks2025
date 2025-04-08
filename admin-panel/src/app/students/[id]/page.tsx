@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -10,43 +10,31 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Calendar, Mail, Phone } from "lucide-react"
+import { ArrowLeft, Calendar, Mail } from "lucide-react"
 import { type Student } from "@/util/database.types"
+import { calculateTotalAttendanceRate } from "@/util/studentStatistics"
 
-// Mock student data
-const studentData = {
-    id: "1",
-    name: "Alex Johnson",
-    grade: "10th",
-    email: "alex.johnson@school.edu",
-    phone: "(555) 123-4567",
-    image: "/placeholder.svg",
-    classes: [
-        { name: "Mathematics", teacher: "Ms. Johnson", attendance: 95 },
-        { name: "Science", teacher: "Mr. Smith", attendance: 92 },
-        { name: "English", teacher: "Mrs. Davis", attendance: 98 },
-        { name: "History", teacher: "Mr. Wilson", attendance: 90 },
-        { name: "Art", teacher: "Ms. Garcia", attendance: 100 },
-    ],
-    recentAttendance: [
-        { date: "2023-04-05", status: true },
-        { date: "2023-04-04", status: true },
-        { date: "2023-04-03", status: false },
-        { date: "2023-04-02", status: true },
-        { date: "2023-04-01", status: true },
-    ],
-}
 
 export default function StudentDetailPage({ params }: { params: { id: string } }) {
-    const [attendanceByClass, setAttendanceByClass] = useState<Record<string, boolean>>(
-        studentData.classes.reduce(
-            (acc, cls, index) => {
-                acc[index] = true
-                return acc
-            },
-            {} as Record<string, boolean>,
-        ),
-    )
+    const [student, setStudent] = useState<Student | null>(null)
+    const [attendanceByClass, setAttendanceByClass] = useState<Record<string, boolean>>({})
+
+    useEffect(() => {
+        const fetchStudent = async () => {
+            const {id} = await params
+            const res = await fetch(`/api/students/${id}`)
+            const data: Student = await res.json()
+            setStudent(data)
+
+            const initialAttendance: Record<string, boolean> = {}
+            data.classes.forEach((_, idx) => {
+                initialAttendance[idx] = true
+            })
+            setAttendanceByClass(initialAttendance)
+        }
+
+        fetchStudent()
+    }, [params])
 
     const handleAttendanceChange = (classIndex: string, isPresent: boolean) => {
         setAttendanceByClass((prev) => ({
@@ -54,6 +42,10 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
             [classIndex]: isPresent,
         }))
     }
+
+    if (!student) return <div>Loading...</div>
+
+    const fullName = `${student.first_name ?? ''} ${student.last_name ?? ''}`.trim()
 
     return (
         <div className="flex min-h-screen w-full flex-col">
@@ -74,17 +66,17 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
                         <CardHeader>
                             <div className="flex flex-col items-center space-y-2">
                                 <Avatar className="h-24 w-24">
-                                    <AvatarImage src={studentData.image} alt={studentData.name} />
+                                    <AvatarImage src={student.profile_photo ?? '/placeholder.svg'} alt={fullName} />
                                     <AvatarFallback>
-                                        {studentData.name
-                                            .split(" ")
+                                        {fullName
+                                            .split(' ')
                                             .map((n) => n[0])
-                                            .join("")}
+                                            .join('')}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="space-y-1 text-center">
-                                    <h2 className="text-xl font-bold">{studentData.name}</h2>
-                                    <p className="text-sm text-muted-foreground">Grade: {studentData.grade}</p>
+                                    <h2 className="text-xl font-bold">{fullName}</h2>
+                                    <p className="text-sm text-muted-foreground">Grade: {student.grade ?? '—'}</p>
                                 </div>
                             </div>
                         </CardHeader>
@@ -92,15 +84,11 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2">
                                     <Mail className="h-4 w-4 text-muted-foreground" />
-                                    <span>{studentData.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4 text-muted-foreground" />
-                                    <span>{studentData.phone}</span>
+                                    <span>{student.id}@gapps.yrdsb.ca</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                                    <span>Overall Attendance: 95%</span>
+                                    <span>Overall Attendance: {calculateTotalAttendanceRate(student)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -121,47 +109,24 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-4">
-                                            {studentData.classes.map((cls, index) => (
+                                            {student.classes.map((cls, index) => (
                                                 <div key={index} className="flex items-center justify-between border-b pb-2">
                                                     <div>
-                                                        <p className="font-medium">{cls.name}</p>
+                                                        <p className="font-medium">Class #{index + 1}</p>
                                                         <p className="text-sm text-muted-foreground">Teacher: {cls.teacher}</p>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Checkbox
                                                             id={`attendance-${index}`}
                                                             checked={attendanceByClass[index]}
-                                                            onCheckedChange={(checked) => handleAttendanceChange(index.toString(), checked === true)}
+                                                            onCheckedChange={(checked) =>
+                                                                handleAttendanceChange(index.toString(), checked === true)
+                                                            }
                                                         />
                                                         <Label htmlFor={`attendance-${index}`}>
-                                                            {attendanceByClass[index] ? "Present" : "Absent"}
+                                                            {attendanceByClass[index] ? 'Present' : 'Absent'}
                                                         </Label>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Recent Attendance</CardTitle>
-                                        <CardDescription>Last 5 days of attendance records.</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-2">
-                                            {studentData.recentAttendance.map((record, index) => (
-                                                <div key={index} className="flex items-center justify-between">
-                                                    <div className="font-medium">
-                                                        {new Date(record.date).toLocaleDateString("en-US", {
-                                                            weekday: "long",
-                                                            month: "short",
-                                                            day: "numeric",
-                                                        })}
-                                                    </div>
-                                                    <Badge variant={record.status ? "default" : "destructive"}>
-                                                        {record.status ? "Present" : "Absent"}
-                                                    </Badge>
                                                 </div>
                                             ))}
                                         </div>
@@ -177,22 +142,31 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-4">
-                                            {studentData.classes.map((cls, index) => (
-                                                <div key={index} className="space-y-2">
-                                                    <div className="flex items-center justify-between">
-                                                        <div>
-                                                            <p className="font-medium">{cls.name}</p>
-                                                            <p className="text-sm text-muted-foreground">Teacher: {cls.teacher}</p>
+                                            {student.classes.map((cls, index) => {
+                                                const present = cls.count_present ?? 0
+                                                const total = present + (cls.count_late ?? 0) + (cls.count_absent ?? 0)
+                                                const attendance = total > 0 ? Math.round((present / total) * 100) : 0
+
+                                                return (
+                                                    <div key={index} className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <div>
+                                                                <p className="font-medium">Class #{index + 1}</p>
+                                                                <p className="text-sm text-muted-foreground">Teacher: {cls.teacher}</p>
+                                                            </div>
+                                                            <Badge variant={attendance >= 90 ? 'default' : 'destructive'}>
+                                                                {attendance}% Attendance
+                                                            </Badge>
                                                         </div>
-                                                        <Badge variant={cls.attendance >= 90 ? "default" : "destructive"}>
-                                                            {cls.attendance}% Attendance
-                                                        </Badge>
+                                                        <div className="h-2 w-full rounded-full bg-muted">
+                                                            <div
+                                                                className="h-full rounded-full bg-primary"
+                                                                style={{ width: `${attendance}%` }}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className="h-2 w-full rounded-full bg-muted">
-                                                        <div className="h-full rounded-full bg-primary" style={{ width: `${cls.attendance}%` }} />
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                )
+                                            })}
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -204,4 +178,3 @@ export default function StudentDetailPage({ params }: { params: { id: string } }
         </div>
     )
 }
-
