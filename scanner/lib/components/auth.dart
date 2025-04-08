@@ -40,18 +40,24 @@ class AuthWidgetState extends State<AuthWidget> {
         TextField(
           controller: _emailController,
           decoration: InputDecoration(labelText: 'Email'),
+          style: TextStyle(fontSize: 22),
         ),
         TextField(
           controller: _passwordController,
           decoration: InputDecoration(labelText: 'Password'),
+          style: TextStyle(fontSize: 22),
         ),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: _loading ? null : _login,
-          child:
-              _loading
-                  ? CircularProgressIndicator(color: Colors.blueGrey)
-                  : Text('Login'),
+        SizedBox(height: 24),
+        SizedBox(
+          width: 108,
+          height: 48,
+          child: ElevatedButton(
+            onPressed: _loading ? null : _login,
+            child:
+                _loading
+                    ? CircularProgressIndicator(color: Colors.blueGrey)
+                    : Text('Login', style: TextStyle(fontSize: 24)),
+          ),
         ),
       ],
     );

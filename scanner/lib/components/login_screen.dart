@@ -17,7 +17,10 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Center(
-        child: AuthWidget()
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: AuthWidget(),
+        )
       ),
     );
   }
