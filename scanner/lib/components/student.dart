@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scanner/components/rounded_image.dart';
 import 'package:scanner/student_data.dart';
 
 class StudentInfo extends StatelessWidget {
@@ -10,8 +11,9 @@ class StudentInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.memory(studentData.imageBytes),
-        Text("${studentData.firstName} ${studentData.lastName}"),
+        RoundedImage(imageBytes: studentData.imageBytes, radius: 16),
+        SizedBox(height: 18),
+        Text(studentData.name, style: TextStyle(fontSize: 24)),
       ],
     );
   }

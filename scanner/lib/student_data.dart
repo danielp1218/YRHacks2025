@@ -2,10 +2,11 @@ import 'dart:typed_data';
 
 class StudentData {
 
-  final String firstName;
-  final String lastName;
+  final String name;
+  final int grade;
   final Uint8List imageBytes;
+  final List<dynamic> classes;
 
-  StudentData(this.firstName, this.lastName, this.imageBytes);
+  StudentData(this.name, this.grade, this.imageBytes, this.classes);
 
 }

@@ -6,7 +6,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const { data: student, error } = await supabase
         .from('Students')
-        .select('id, first_name, last_name, grade, profile_photo, log')
+        .select('first_name, last_name, grade, profile_photo')
         .eq('id', studentId)
         .single()
 
@@ -16,11 +16,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const classes: string[] = [];
 
     return NextResponse.json({
-        id: student.id,
         name: `${student.first_name} ${student.last_name}`,
         grade: student.grade,
         image: student.profile_photo,
         classes,
-        log: student.log,
     })
 }

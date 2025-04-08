@@ -1,11 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:scanner/fetch_data.dart';
 import 'package:scanner/post_data.dart';
-import 'package:scanner/student.dart';
+import 'package:scanner/components/student.dart';
 import 'package:scanner/student_data.dart';
+import 'package:scanner/validate_data.dart';
 
 class NFCScanner extends StatefulWidget {
   const NFCScanner({super.key});
@@ -48,19 +47,21 @@ class NFCScannerState extends State<NFCScanner> {
               data = "Tag does not have exactly 1 record!";
             });
           } else {
-            
+
             setState(() {
               data = String.fromCharCodes(
                 message.records.first.payload.skip(
                   message.records.first.payload.first + 1,
                 ),
               ); // skip first n bytes (where n is defined by the first byte in the message) which defines the language such as "en"
-              postData(data);
             });
-
-            final fetchedData = await fetchData();
-            setState(() => studentData = fetchedData);
-
+            if (isDataValidId(data)) {
+              postData(data);
+              final fetchedData = await fetchData(data);
+              setState(() => studentData = fetchedData);
+            } else {
+              setState(() => studentData = null);
+            }
           }
         }
         NfcManager.instance.stopSession();

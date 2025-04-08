@@ -5,14 +5,6 @@ import 'package:scanner/util.dart';
 
 Future<void> postData(String data) async {
   debugPrint(data);
-  
-  if (data.length != 9) {
-    return;
-  }
-
-  if (int.tryParse(data) == null) {
-    return;
-  }
 
   final body = jsonEncode({
     'id': data,
