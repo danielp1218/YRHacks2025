@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/util/supabase' // use supabaseClient if staying public
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
-    const studentId = params.id
+    const { id } = await params;
 
     const { data: student, error } = await supabase
         .from('Students')
         .select('first_name, last_name, grade, profile_photo')
-        .eq('id', studentId)
+        .eq('id', id)
         .single()
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
