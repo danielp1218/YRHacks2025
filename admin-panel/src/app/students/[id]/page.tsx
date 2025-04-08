@@ -1,36 +1,46 @@
 "use client"
 
-
 import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Calendar, Mail } from "lucide-react"
+import { Mail } from "lucide-react"
 import { type Student } from "@/util/database.types"
-import { calculateTotalAttendanceRate } from "@/util/studentStatistics"
 
-export default function StudentDetailPage({ studentId }: { studentId: string }) {
+export default function StudentDetailPage({ params }: { params: { id: string } }) {
     const [student, setStudent] = useState<Student | null>(null)
     const [history, setHistory] = useState<any[]>([])
   
     useEffect(() => {
       const fetchStudentAndHistory = async () => {
+        const { id } = await params;
+        const studentId = id;
+        console.log("Student ID:"+studentId)
         const res = await fetch(`/api/students/${studentId}`)
         const data: Student = await res.json()
         setStudent(data)
   
-        const historyRes = await fetch(`/api/history?studentId=${studentId}`)
-        const historyData = await historyRes.json()
-        setHistory(historyData)
+        const historyRes = await fetch(`/api/history/${studentId}`)
+        if (!historyRes.ok) {
+          setHistory([])
+          return
+        }
+        
+        try {
+          const historyData = await historyRes.json()
+          console.log("History data received:", historyData)
+          
+          // Ensure historyData is an array, using empty array as fallback
+          setHistory(Array.isArray(historyData) ? historyData : (historyData || []))
+        } catch (error) {
+          console.error("Error parsing history data:", error)
+          setHistory([])
+        }
       }
       fetchStudentAndHistory()
-    }, [studentId])
+    }, [])
   
     if (!student) return <div>Loading...</div>
   
