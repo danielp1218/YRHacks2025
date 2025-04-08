@@ -8,7 +8,6 @@ Future<void> postData(String data, String serverUrl) async {
 
   final body = jsonEncode({
     'id': data,
-    'time': DateTime.now().millisecondsSinceEpoch
   });
 
   final response = await http.post(
