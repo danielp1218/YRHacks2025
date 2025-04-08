@@ -31,6 +31,8 @@ class AuthWidgetState extends State<AuthWidget> {
     setState(() => _loading = false);
   }
 
+  bool _obscurePassword = true;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -44,7 +46,18 @@ class AuthWidgetState extends State<AuthWidget> {
         ),
         TextField(
           controller: _passwordController,
-          decoration: InputDecoration(labelText: 'Password'),
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            suffixIcon: IconButton(
+              icon:
+                  _obscurePassword
+                      ? const Icon(Icons.visibility_off)
+                      : const Icon(Icons.visibility),
+              onPressed:
+                  () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
           style: TextStyle(fontSize: 22),
         ),
         SizedBox(height: 24),
