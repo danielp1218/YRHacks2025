@@ -28,14 +28,22 @@ export default function LoginPage() {
     
     return (
         <div style={{ display: 'flex', minHeight: '100vh', justifyContent: 'center', alignItems: 'center' }}>
-            <form onSubmit={handleLogin} style={{ background: 'white', padding: 24, borderRadius: 10, boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
-                <h2>Teacher Login</h2>
+            <form onSubmit={handleLogin} style={{ background: 'white', padding: 36, borderRadius: 10, boxShadow: '0 2px 10px rgba(0,0,0,0.1)', width: '350px' }}>
+                <h2 style={{ marginBottom: '24px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>Teacher Login</h2>
                 
                 <input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                style={{ 
+                    display: 'block', 
+                    width: '100%', 
+                    padding: '12px',
+                    marginBottom: '16px',
+                    borderRadius: '4px',
+                    border: '1px solid #ddd'
+                }}
                 />
 
                 <input
@@ -43,12 +51,19 @@ export default function LoginPage() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ display: 'block', width: '100%' }}
+                style={{ 
+                    display: 'block', 
+                    width: '100%',
+                    padding: '12px',
+                    marginBottom: '16px',
+                    borderRadius: '4px', 
+                    border: '1px solid #ddd'
+                }}
                 />
 
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-
-                <button type="submit" style={{ padding : 8, backgroundColor: 'black', color: 'white', width: '100%' }}>Sign In</button>
+                {error && <p style={{ color: 'red', padding: '8px 0', marginBottom: '16px' }}>{error}</p>}
+                
+                <button type="submit" style={{ padding: '12px', backgroundColor: 'black', color: 'white', width: '100%', borderRadius: '4px', border: 'none', cursor: 'pointer', marginTop: '8px' }}>Sign In</button>
             </form>
         </div>
     )

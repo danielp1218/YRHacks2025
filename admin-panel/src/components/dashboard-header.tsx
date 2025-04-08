@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Bell, Calendar, LogOut, Settings, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -16,9 +17,11 @@ import {
 import {auth} from '@/util/auth'
 import {type Session} from '@supabase/supabase-js'
 import {useEffect, useState} from 'react'
+import { supabase } from '@/util/supabase'
 
 export function DashboardHeader() {
     const [authData, setAuthData] = useState<Session | null>(null);
+    const router = useRouter();
     
     useEffect(() => {
         auth().then((result) => {
@@ -26,6 +29,16 @@ export function DashboardHeader() {
             console.log(result);
         });
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+            setAuthData(null);
+            router.push('/signin');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
 
     return (
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -73,7 +86,7 @@ export function DashboardHeader() {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
                             <LogOut className="mr-2 h-4 w-4" />
                             <span>Log out</span>
                         </DropdownMenuItem>
