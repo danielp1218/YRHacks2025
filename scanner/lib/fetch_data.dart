@@ -10,8 +10,8 @@ Uint8List base64ToImage(String dataUrl) {
   return base64Decode(base64String);
 }
 
-Future<StudentData?> fetchData(String id) async {
-  final response = await http.get(Uri.parse(studentDataUrl + id));
+Future<StudentData?> fetchData(String id, String serverUrl) async {
+  final response = await http.get(Uri.parse("${serverUrl}students/$id"));
   if (response.statusCode == 200) {
     debugPrint(response.body);
     final json = jsonDecode(response.body);

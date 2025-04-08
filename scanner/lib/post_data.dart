@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:scanner/util.dart';
 
-Future<void> postData(String data) async {
+Future<void> postData(String serverUrl, String data) async {
   debugPrint(data);
 
   final body = jsonEncode({
@@ -12,7 +12,7 @@ Future<void> postData(String data) async {
   });
 
   final response = await http.post(
-    Uri.parse(postUrl),
+    Uri.parse("${serverUrl}data"),
     headers: {
       'Content-Type': 'application/json',
     },

@@ -17,10 +17,11 @@ class NFCScanner extends StatefulWidget {
 class NFCScannerState extends State<NFCScanner> {
   String data = "Press button then scan tag";
   StudentData? studentData;
+  String serverUrl = "http://10.0.0.153:3000/api/";
 
   Future<void> startNFC() async {
     setState(() => studentData = null);
-    
+
     bool isAvailable = await NfcManager.instance.isAvailable();
     if (!isAvailable) {
       setState(() {
@@ -56,9 +57,9 @@ class NFCScannerState extends State<NFCScanner> {
                 ); // skip first n bytes (where n is defined by the first byte in the message) which defines the language such as "en"
               });
               if (isDataValidId(data)) {
-                postData(data);
+                postData(data, serverUrl);
                 setState(() => studentData = null);
-                final fetchedData = await fetchData(data);
+                final fetchedData = await fetchData(data, serverUrl);
                 setState(() => studentData = fetchedData);
               }
             }
@@ -79,24 +80,40 @@ class NFCScannerState extends State<NFCScanner> {
       appBar: AppBar(title: Text("NFC Scanner")),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 18,
           children: [
-            studentData != null
-                ? StudentInfo(studentData: studentData!)
-                : Column(
-                  children: [
-                    LoadingAnimationWidget.inkDrop(
-                      color: Colors.blueGrey,
-                      size: 120,
-                    ),
-                    SizedBox(height: 20),
-                  ],
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 18,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: TextFormField(
+                    style: TextStyle(fontSize: 20),
+                    initialValue: "http://10.0.0.153:3000/api/",
+                    onChanged: (value) {
+                      setState(() => serverUrl = value);
+                      debugPrint(serverUrl);
+                    },
+                  ),
                 ),
-            Text(data, style: TextStyle(fontSize: 26)),
-            ElevatedButton(
-              onPressed: startNFC,
-              child: Text("Scan", style: TextStyle(fontSize: 28)),
+                SizedBox(height: 10),
+                studentData != null
+                    ? StudentInfo(studentData: studentData!)
+                    : Column(
+                      children: [
+                        LoadingAnimationWidget.inkDrop(
+                          color: Colors.blueGrey,
+                          size: 120,
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    ),
+                Text(data, style: TextStyle(fontSize: 26)),
+                ElevatedButton(
+                  onPressed: startNFC,
+                  child: Text("Scan", style: TextStyle(fontSize: 28)),
+                ),
+              ],
             ),
           ],
         ),
