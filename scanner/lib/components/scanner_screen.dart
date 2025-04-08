@@ -117,6 +117,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                 }
                 final classes = snapshot.data!;
                 return DropdownMenu(
+                  hintText: "Class",
                   dropdownMenuEntries: classes
                       .map((e) => DropdownMenuEntry(value: e, label: e))
                       .toList(growable: false),
