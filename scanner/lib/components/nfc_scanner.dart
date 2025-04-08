@@ -19,6 +19,8 @@ class NFCScannerState extends State<NFCScanner> {
   StudentData? studentData;
 
   Future<void> startNFC() async {
+    setState(() => studentData = null);
+    
     bool isAvailable = await NfcManager.instance.isAvailable();
     if (!isAvailable) {
       setState(() {
@@ -31,43 +33,44 @@ class NFCScannerState extends State<NFCScanner> {
       data = "Scan tag";
     });
 
-    NfcManager.instance.startSession(
-      onDiscovered: (NfcTag tag) async {
-        final Ndef? ndef = Ndef.from(tag);
-        if (ndef == null) {
-          setState(() {
-            data = "Tag is not compatible with NDEF";
-          });
-        } else {
-          final NdefMessage message = await ndef.read();
-          if (message.records.length != 1) {
+    try {
+      NfcManager.instance.startSession(
+        onDiscovered: (NfcTag tag) async {
+          final Ndef? ndef = Ndef.from(tag);
+          if (ndef == null) {
             setState(() {
-              data = "Tag does not have exactly 1 record!";
+              data = "Tag is not compatible with NDEF";
             });
           } else {
-            setState(() {
-              data = String.fromCharCodes(
-                message.records.first.payload.skip(
-                  message.records.first.payload.first + 1,
-                ),
-              ); // skip first n bytes (where n is defined by the first byte in the message) which defines the language such as "en"
-            });
-            if (isDataValidId(data)) {
-              postData(data);
-              setState(() => studentData = null);
-              final fetchedData = await fetchData(data);
-              setState(() => studentData = fetchedData);
+            final NdefMessage message = await ndef.read();
+            if (message.records.length != 1) {
+              setState(() {
+                data = "Tag does not have exactly 1 record!";
+              });
+            } else {
+              setState(() {
+                data = String.fromCharCodes(
+                  message.records.first.payload.skip(
+                    message.records.first.payload.first + 1,
+                  ),
+                ); // skip first n bytes (where n is defined by the first byte in the message) which defines the language such as "en"
+              });
+              if (isDataValidId(data)) {
+                postData(data);
+                setState(() => studentData = null);
+                final fetchedData = await fetchData(data);
+                setState(() => studentData = fetchedData);
+              }
             }
           }
-        }
-        NfcManager.instance.stopSession();
-      },
-      onError: (error) async {
-        debugPrint("Failed to scan tag $error");
-        setState(() => data = "Failed to scan tag");
-        setState(() => studentData = null);
-      },
-    );
+          NfcManager.instance.stopSession();
+        },
+      );
+    } catch (error) {
+      debugPrint("Failed to scan tag $error");
+      setState(() => data = "Failed to scan tag");
+      setState(() => studentData = null);
+    }
   }
 
   @override
@@ -77,15 +80,20 @@ class NFCScannerState extends State<NFCScanner> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 18,
           children: [
             studentData != null
                 ? StudentInfo(studentData: studentData!)
-                : LoadingAnimationWidget.inkDrop(
-                  color: Colors.white,
-                  size: 180,
+                : Column(
+                  children: [
+                    LoadingAnimationWidget.inkDrop(
+                      color: Colors.blueGrey,
+                      size: 120,
+                    ),
+                    SizedBox(height: 20),
+                  ],
                 ),
             Text(data, style: TextStyle(fontSize: 26)),
-            SizedBox(height: 24),
             ElevatedButton(
               onPressed: startNFC,
               child: Text("Scan", style: TextStyle(fontSize: 28)),

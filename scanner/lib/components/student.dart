@@ -10,10 +10,12 @@ class StudentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 10,
       children: [
         RoundedImage(imageBytes: studentData.imageBytes, radius: 40),
-        SizedBox(height: 18),
-        Text(studentData.name, style: TextStyle(fontSize: 24)),
+        SizedBox(height: 10),
+        Text(studentData.name, style: TextStyle(fontSize: 26)),
+        Text("Grade ${studentData.grade.toString()}", style: TextStyle(fontSize: 24)),
       ],
     );
   }
