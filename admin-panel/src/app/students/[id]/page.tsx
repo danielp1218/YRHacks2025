@@ -9,7 +9,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Mail } from "lucide-react"
 import { type Student } from "@/util/database.types"
 
-export default function StudentDetailPage({ params }: { params: { id: string[] } }) {
+export default function StudentDetailPage({ params }: { params: Promise<{ id: string[] }> }) {
     const [student, setStudent] = useState<Student | null>(null)
     const [history, setHistory] = useState<any[]>([])
   
