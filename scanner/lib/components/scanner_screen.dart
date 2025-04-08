@@ -45,8 +45,10 @@ class ScannerScreenState extends State<ScannerScreen> {
               setState(() {
                 data = "Tag is not compatible with NDEF";
               });
+              NfcManager.instance.stopSession();
             } else {
               final NdefMessage message = await ndef.read();
+              NfcManager.instance.stopSession();
               if (message.records.length != 1) {
                 setState(() {
                   data = "Tag does not have exactly 1 record!";
@@ -67,7 +69,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                 }
               }
             }
-          } on Exception catch (error) {
+          } catch (error) {
             debugPrint("Failed to scan tag $error");
             setState(() => data = "Failed to scan tag");
             setState(() => studentData = null);
