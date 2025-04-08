@@ -3,7 +3,6 @@ import {supabase} from '@/util/supabase';
 
 interface ScannerData {
   id: string, // 9 digit student id string
-  time: number, // milliseconds since epoch
 }
 
 export async function POST(req: NextRequest) {
@@ -19,8 +18,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("id: %d", scanData.id);
-    const date = new Date(scanData.time);
-    console.log("date: ", date.toString());
 
     const {data, error} = await supabase.from('History')
         .insert({

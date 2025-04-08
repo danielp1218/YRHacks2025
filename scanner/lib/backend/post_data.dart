@@ -3,12 +3,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:scanner/util.dart';
 
-Future<void> postData(String serverUrl, String data) async {
+Future<void> postData(String data, String serverUrl) async {
   debugPrint(data);
 
   final body = jsonEncode({
     'id': data,
-    'time': DateTime.now().millisecondsSinceEpoch
   });
 
   final response = await http.post(

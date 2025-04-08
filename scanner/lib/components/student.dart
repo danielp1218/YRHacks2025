@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scanner/components/rounded_image.dart';
-import 'package:scanner/student_data.dart';
+import 'package:scanner/backend/student_data.dart';
 
 class StudentInfo extends StatelessWidget {
   final StudentData studentData;
