@@ -40,7 +40,7 @@ const studentData = {
     ],
 }
 
-export default function StudentDetailPage({ params }: { params: { id: string } }) {
+export default function StudentDetailPage() {
     const [attendanceByClass, setAttendanceByClass] = useState<Record<string, boolean>>(
         studentData.classes.reduce(
             (acc, cls, index) => {
