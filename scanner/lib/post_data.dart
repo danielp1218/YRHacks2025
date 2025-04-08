@@ -1,22 +1,23 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:scanner/util.dart';
 
 Future<void> postData(String data) async {
-  const url = "http://10.0.0.153:3000/api/data";
-  print(data);
+  debugPrint(data);
 
+  const url = "http://10.0.0.153:3000/api/data";
+  
   if (data.length != 9) {
     return;
   }
 
-  int? id = int.tryParse(data);
-  if (id == null) {
+  if (int.tryParse(data) == null) {
     return;
   }
 
   final body = jsonEncode({
-    'id': id,
+    'id': data,
     'time': DateTime.now().millisecondsSinceEpoch
   });
 
@@ -29,9 +30,9 @@ Future<void> postData(String data) async {
   );
 
   if (response.statusCode == 200) {
-    print('Success: ${response.body}');
+    debugPrint('Success: ${response.body}');
   } else {
-    print('Failed: ${response.statusCode} - ${response.body}');
+    debugPrint('Failed: ${response.statusCode} - ${response.body}');
   }
 
 }
