@@ -3,6 +3,8 @@ import {supabase} from '@/util/supabase';
 
 interface ScannerData {
   id: string, // 9 digit student id string
+  classStr: string,
+  teacherid: string,
 }
 
 export async function POST(req: NextRequest) {
