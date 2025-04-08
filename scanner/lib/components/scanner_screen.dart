@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:scanner/backend/auth.dart';
 import 'package:scanner/backend/fetch_classes.dart';
 import 'package:scanner/backend/fetch_data.dart';
 import 'package:scanner/backend/post_data.dart';
@@ -91,7 +92,18 @@ class ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("NFC Scanner")),
+      appBar: AppBar(
+        title: Text("NFC Scanner"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              logout();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
