@@ -23,6 +23,7 @@ export function StudentList({ filter }: StudentListProps) {
   const [students, setStudents] = useState<Student[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [period, setPeriod] = useState(1)
+  const [statuses, setStatuses] = useState<Record<number, string>>({}) // Store statuses by student ID
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -68,6 +69,18 @@ export function StudentList({ filter }: StudentListProps) {
       supabase.removeChannel(channel)
     }
   }, [])
+
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      const newStatuses: Record<number, string> = {}
+      for (const student of students) {
+        newStatuses[student.id] = await currentStatus(student)
+      }
+      setStatuses(newStatuses)
+    }
+
+    fetchStatuses()
+  }, [students, period]) // Re-fetch statuses when students or period changes
 
   // Mock filter: take first 5 as "my students"
   const filteredByGroup = filter === "my-students" ? students.slice(0, 5) : students
@@ -130,8 +143,7 @@ export function StudentList({ filter }: StudentListProps) {
             {filteredStudents.map((student) => {
               const fullName = `${student.first_name ?? ""} ${student.last_name ?? ""}`
               const rate = calculateTotalAttendanceRate(student)
-              const status = currentStatus(student, period)
-
+              const status = statuses[student.id] || "Loading..." // Use status from state
               return (
                 <TableRow key={student.id}>
                   <TableCell>
