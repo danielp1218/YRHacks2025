@@ -30,3 +30,7 @@ Future<LoginError?> login(String email, String password) async {
     return LoginError("Unexpected error occurred");
   }
 }
+
+Future<void> logout() async {
+  await Supabase.instance.client.auth.signOut();
+}
